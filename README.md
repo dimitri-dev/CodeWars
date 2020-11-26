@@ -3,6 +3,7 @@
 
 ## What is CodeWars
  CodeWars is a website through which you can solve algorithmic problems and "achieve code mastery".
+ 
  Everyone is free to participate by registering at [CodeWars](https://codewars.com).
 
 ## Language (Why C++)
