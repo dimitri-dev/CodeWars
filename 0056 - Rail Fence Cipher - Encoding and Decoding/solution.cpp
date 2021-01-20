@@ -1,74 +1,76 @@
 ﻿#include <iostream>
 #include <algorithm>
-#include <vector>
 #include <cmath>
+#include <string>
 using namespace std;
 
-std::string encode_rail_fence_cipher(std::string str, int n) {
-    if (str == "") return "";
+std::string encode_rail_fence_cipher(std::string msg, int key) {
+      if (msg.empty()) return "";
 
-    std::vector<std::string> arr(n, "");
-    int strLength = 0;
-    int stringIter = 0;
-    bool down = true;
+      int nrow = key, ncol = msg.length();
+	    char rail_matrix[nrow][ncol]; 
+	  
+	    for (int i=0; i < nrow; i++)
+	        for (int j = 0; j < ncol; j++)
+	            rail_matrix[i][j] = '|'; 
+  
+	    bool downward = false; 
+	    int r = 0, c = 0; 
+	    std::string ciphertext; 
+	  
+	    for (int i=0; i < msg.length(); i++) {
+	        if (r == 0 || r == key-1) downward = !downward; 
+	        rail_matrix[r][c++] = msg[i]; 
+	        downward ? ++r : --r; 
+	    } 
+	    
+	    for (int i=0; i < key; i++)
+	        for (int j=0; j < msg.length(); j++)
+	            if (rail_matrix[i][j] != '|') 
+	                ciphertext.push_back(rail_matrix[i][j]);
 
-    while (stringIter < str.length()) {
-        arr[strLength] += str[stringIter];
-
-        (down) ? ++strLength : --strLength;
-        if (strLength == 0) { down = true; strLength = 0;}
-        else if (strLength % n == 0) { down = false; ----strLength;}
-
-        ++stringIter;
-    }
-
-    string throwback = "";
-    for (auto x : arr)
-        throwback += x;
-
-    return throwback;
+    return ciphertext;
 }
 
-std::string decode_rail_fence_cipher(std::string str, int n) {
-    if (str == "") return "";
+std::string decode_rail_fence_cipher(std::string msg, int key) {
+      int nrow = key, ncol = msg.length();
+	    char rail_matrix[nrow][ncol]; 
+	    std::string plaintext;
+	  
+	    for (int i=0; i < nrow; i++)
+	        for (int j = 0; j < ncol; j++)
+	            rail_matrix[i][j] ='^'; 
 
-    std::vector<std::string> arr(n, "");
-    int strLength = 0;
-    
-    for (int i = 0; i < n; ++i)
-        for (int ii = 0; ii < str.length(); ++ii)
-            arr[i] += '\n';
+	    bool downward; 
+	    int r = 0, c= 0; 
+	  
+	    for (int i=0; i < msg.length(); i++) {
+	        if (r == 0) downward = true; 
+	        if (r == key-1) downward = false; 
+	        rail_matrix[r][c++] = '~'; 
+	  
+	        downward? ++r : --r; 
+	    } 
+	  
+	    int indx = 0; 
+	    for (int i = 0; i < key; ++i)
+	        for (int j = 0; j < msg.length(); ++j)
+	            if (rail_matrix[i][j] == '~' && indx < msg.length()) 
+	     			    rail_matrix[i][j] = msg[indx++]; 
+         
+	  
+	    r = 0, c = 0; 
+	    for (int i = 0; i < msg.length(); ++i) 
+	    { 
+	        if (r == 0) downward = true; 
+	        if (r == key-1) downward = false; 
+	  
 
-    bool down = false;
-
-    int row = 0, col = 0;
-    for (int i = 0; i < str.length(); ++i) {
-        if (row == 0 || row == n - 1) down = !down;
-        arr[row][col++] = '*';
-        (down) ? ++row : --row;
-    }
-
-    int idx = 0;
-    for (int i = 0; i < n; ++i)
-        for (int ii = 0; ii < str.length(); ++ii)
-            if (arr[i][ii] == '*' && idx < str.length())
-                arr[i][ii] = str[idx++];
-
-
-    string throwback = "";
-
-    row = 0; col = 0;
-    for (int stringIter = 0; stringIter < str.length(); ++stringIter) {
-        if (row == 0) down = true;
-        else if (row == n - 1) down = false;
-        
-        if (arr[row][col] != '*')
-            throwback += arr[row][col++];
-
-        (down) ? ++row : --row;
-    }
-
-    return throwback;
+	        if (rail_matrix[r][c] != '~') plaintext.push_back(rail_matrix[r][c++]);
+	        downward?r++: r--; 
+	    }  
+  
+      return plaintext;
 }
 
 int main() {
